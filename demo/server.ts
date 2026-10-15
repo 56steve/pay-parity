@@ -23,8 +23,8 @@ function publicView() {
   return {
     employer: hex(ledger.employer),
     submissions: Number(ledger.submissions),
-    log: sim.log().map((e, i) => ({
-      seq: i,
+    log: sim.numberedLog().map(({ seq, entry: e }) => ({
+      seq,
       category: new TextDecoder().decode(e.category).replace(/\0+$/, ''),
       period: Number(e.period),
       compliant: e.compliant,

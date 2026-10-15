@@ -61,7 +61,14 @@ export class AuditSimulator {
     return this.context.currentQueryContext.state.toString();
   }
 
+  // the ledger map doesn't iterate in insertion order, so order by sequence number
+  numberedLog(): Array<{ seq: number; entry: AuditResult }> {
+    return [...this.ledger().audits]
+      .map(([seq, entry]) => ({ seq: Number(seq), entry }))
+      .sort((a, b) => a.seq - b.seq);
+  }
+
   log(): AuditResult[] {
-    return [...this.ledger().audits].map(([, entry]) => entry);
+    return this.numberedLog().map(({ entry }) => entry);
   }
 }

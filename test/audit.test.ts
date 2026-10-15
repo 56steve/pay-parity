@@ -118,6 +118,15 @@ describe('audit log', () => {
     expect(log.map((e) => e.compliant)).toEqual([false, true]);
   });
 
+  it('keeps the log in submission order however many entries there are', () => {
+    const sim = new AuditSimulator(secret);
+    const years = Array.from({ length: 12 }, (_, i) => 2000 + i);
+    for (const year of years) sim.submit(engineers, year, team([100, 100], [100, 100]), salt);
+
+    expect(sim.log().map((e) => Number(e.period))).toEqual(years);
+    expect(sim.numberedLog().map((e) => e.seq)).toEqual(years.map((_, i) => i));
+  });
+
   it('records the category and period of each entry', () => {
     const sim = new AuditSimulator(secret);
     const designers = categoryId('designers-2026');

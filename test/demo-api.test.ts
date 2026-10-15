@@ -54,6 +54,20 @@ describe('demo api', () => {
     expect(view.log.map((e: { compliant: boolean }) => e.compliant)).toEqual([true, false]);
   });
 
+  it('lists audits in the order they were submitted', async () => {
+    await post('/api/reset', {});
+    for (const name of ['first', 'second', 'third', 'fourth']) {
+      await post('/api/audits', audit(name, [100, 100], [100, 100]));
+    }
+    const view = await json(await fetch(base + '/api/ledger'));
+    expect(view.log.map((e: { category: string }) => e.category)).toEqual(['first', 'second', 'third', 'fourth']);
+    expect(view.log.map((e: { seq: number }) => e.seq)).toEqual([0, 1, 2, 3]);
+    // later tests expect the ledger to start from the two audits made before this one
+    await post('/api/reset', {});
+    await post('/api/audits', audit('Engineers', [100_000, 100_000], [98_000, 97_000]));
+    await post('/api/audits', audit('Designers', [100_000, 100_000], [80_000, 80_000]));
+  });
+
   it('returns the contract message when an audit is rejected, and records nothing', async () => {
     const before = (await json(await fetch(base + '/api/ledger'))).submissions;
     const res = await post('/api/audits', audit('Solo', [100, 100], [100]));
