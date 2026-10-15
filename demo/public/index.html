@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pay Parity</title>
+<style>
+  :root {
+    --bg: #f6f6f4;
+    --surface: #ffffff;
+    --text: #1c1c1a;
+    --muted: #6b6b66;
+    --line: #dcdcd6;
+    --accent: #2b4a7a;
+    --accent-text: #ffffff;
+    --pass-bg: #e3f1e6;
+    --pass-text: #1d5a2b;
+    --fail-bg: #f8e3e0;
+    --fail-text: #8a2a1d;
+    --focus: #2b4a7a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #151514;
+      --surface: #1e1e1c;
+      --text: #ececE8;
+      --muted: #9a9a93;
+      --line: #34342f;
+      --accent: #8fb0e0;
+      --accent-text: #11161d;
+      --pass-bg: #1d3524;
+      --pass-text: #9bd4a8;
+      --fail-bg: #3b1f1b;
+      --fail-text: #f0a99f;
+      --focus: #8fb0e0;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  header, main { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+  header { padding-top: 32px; padding-bottom: 8px; }
+  h1 { font-size: 22px; font-weight: 650; margin: 0 0 4px; letter-spacing: -0.01em; }
+  header p { margin: 0; color: var(--muted); max-width: 62ch; }
+  main {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: 20px;
+    padding-top: 20px;
+    padding-bottom: 48px;
+    align-items: start;
+  }
+  @media (max-width: 860px) { main { grid-template-columns: minmax(0, 1fr); } }
+  section {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 18px 18px 20px;
+  }
+  h2 { font-size: 15px; font-weight: 650; margin: 0 0 2px; }
+  .sub { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
+  label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+  input, select {
+    font: inherit;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 7px 9px;
+    width: 100%;
+  }
+  input:focus-visible, select:focus-visible, button:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 1px;
+  }
+  .row { display: grid; grid-template-columns: 1fr 110px; gap: 10px; margin-bottom: 14px; }
+  .people-head, .person {
+    display: grid;
+    grid-template-columns: 1fr 120px 32px;
+    gap: 8px;
+    align-items: center;
+  }
+  .people-head { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .person { margin-bottom: 6px; }
+  .person button.remove {
+    background: none; border: 0; color: var(--muted); font-size: 18px; line-height: 1;
+    cursor: pointer; padding: 4px; border-radius: 4px;
+  }
+  .person button.remove:hover { color: var(--fail-text); }
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  button {
+    font: inherit;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--text);
+    padding: 7px 12px;
+    cursor: pointer;
+  }
+  button:hover { border-color: var(--muted); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-weight: 600; }
+  button.primary:hover { filter: brightness(1.08); }
+  button:disabled { opacity: 0.55; cursor: default; }
+  .msg { margin-top: 12px; padding: 9px 11px; border-radius: 6px; font-size: 14px; display: none; }
+  .msg.error { display: block; background: var(--fail-bg); color: var(--fail-text); }
+  .msg.ok { display: block; background: var(--pass-bg); color: var(--pass-text); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; font-size: 12px; font-weight: 600; color: var(--muted); padding: 0 8px 6px 0; border-bottom: 1px solid var(--line); }
+  td { padding: 8px 8px 8px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:last-child td { border-bottom: 0; }
+  .pill { display: inline-block; padding: 1px 8px; border-radius: 99px; font-size: 12px; font-weight: 600; }
+  .pill.pass { background: var(--pass-bg); color: var(--pass-text); }
+  .pill.fail { background: var(--fail-bg); color: var(--fail-text); }
+  code { font: 12px ui-monospace, SFMono-Regular, Consolas, monospace; color: var(--muted); }
+  .empty { color: var(--muted); padding: 14px 0 4px; }
+  .rules { margin: 16px 0 0; padding: 12px 0 0; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+  .rules h3 { font-size: 13px; color: var(--text); margin: 0 0 4px; }
+  .rules ul { margin: 0; padding-left: 18px; }
+  .rules li { margin: 2px 0; }
+  footer { max-width: 1080px; margin: 0 auto; padding: 0 20px 32px; color: var(--muted); font-size: 12.5px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Pay Parity</h1>
+  <p>Prove that the gender pay gap in a job category is under 5% without publishing any individual salary. The public ledger records the verdict and a commitment to the data, nothing else.</p>
+</header>
+
+<main>
+  <section aria-labelledby="submit-h">
+    <h2 id="submit-h">Submit an audit</h2>
+    <p class="sub">Employer view. This data stays on this machine.</p>
+
+    <div class="row">
+      <div>
+        <label for="category">Job category</label>
+        <input id="category" value="Software engineers" maxlength="32" autocomplete="off">
+      </div>
+      <div>
+        <label for="period">Year</label>
+        <input id="period" type="number" value="2026" min="2000" max="2100">
+      </div>
+    </div>
+
+    <div class="people-head"><span>Annual salary</span><span>Gender</span><span></span></div>
+    <div id="people"></div>
+
+    <div class="actions">
+      <button type="button" id="add">Add person</button>
+      <button type="button" id="example">Load example</button>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="primary" id="submit">Submit audit</button>
+    </div>
+    <div id="msg" class="msg" role="status"></div>
+
+    <div class="rules">
+      <h3>How the contract decides</h3>
+      <ul>
+        <li>Compliant when average pay for women is more than 95% of average pay for men.</li>
+        <li>Exactly 5% counts as non-compliant, matching "5% or more" in the directive.</li>
+        <li>Each group needs at least two people, so a verdict can't expose one person's pay.</li>
+        <li>Up to 8 people per audit.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section aria-labelledby="ledger-h">
+    <h2 id="ledger-h">Public ledger</h2>
+    <p class="sub">What a regulator or employee can read. Every attempt is appended, including failures.</p>
+    <div id="ledger"></div>
+    <div class="actions"><button type="button" id="reset">Clear ledger</button></div>
+  </section>
+</main>
+
+<footer>
+  Runs the compiled Compact contract in-process. No network is involved and no zero-knowledge proofs are generated in this mode.
+</footer>
+
+<script>
+  const peopleEl = document.getElementById('people');
+  const msgEl = document.getElementById('msg');
+  const MAX = 8;
+
+  function addPerson(salary = '', gender = 'female') {
+    if (peopleEl.children.length >= MAX) return;
+    const row = document.createElement('div');
+    row.className = 'person';
+
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.min = '0';
+    input.step = '1';
+    input.placeholder = '0';
+    input.setAttribute('aria-label', 'Annual salary');
+    input.value = salary;
+
+    const select = document.createElement('select');
+    select.setAttribute('aria-label', 'Gender');
+    for (const g of ['female', 'male']) {
+      const o = document.createElement('option');
+      o.value = g;
+      o.textContent = g[0].toUpperCase() + g.slice(1);
+      select.appendChild(o);
+    }
+    select.value = gender;
+
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'remove';
+    remove.setAttribute('aria-label', 'Remove person');
+    remove.textContent = '×';
+    remove.addEventListener('click', () => { row.remove(); syncAdd(); });
+
+    row.append(input, select, remove);
+    peopleEl.appendChild(row);
+    syncAdd();
+  }
+
+  function syncAdd() {
+    document.getElementById('add').disabled = peopleEl.children.length >= MAX;
+  }
+
+  function showMsg(kind, text) {
+    msgEl.className = 'msg ' + kind;
+    msgEl.textContent = text;
+  }
+
+  function loadExample() {
+    peopleEl.replaceChildren();
+    const rows = [
+      [112000, 'male'], [104000, 'male'], [118000, 'male'],
+      [108000, 'female'], [101000, 'female'], [110000, 'female'],
+    ];
+    rows.forEach(([s, g]) => addPerson(s, g));
+    msgEl.className = 'msg';
+  }
+
+  function readWorkers() {
+    return [...peopleEl.children].map((row) => ({
+      salary: row.querySelector('input').value,
+      gender: row.querySelector('select').value,
+    }));
+  }
+
+  function renderLedger(view) {
+    const host = document.getElementById('ledger');
+    host.replaceChildren();
+    if (!view.log.length) {
+      const p = document.createElement('p');
+      p.className = 'empty';
+      p.textContent = 'No audits recorded yet.';
+      host.appendChild(p);
+      return;
+    }
+    const table = document.createElement('table');
+    const head = table.createTHead().insertRow();
+    ['#', 'Category', 'Year', 'Verdict', 'People', 'Commitment'].forEach((t) => {
+      const th = document.createElement('th');
+      th.textContent = t;
+      head.appendChild(th);
+    });
+    const body = table.createTBody();
+    for (const e of view.log) {
+      const tr = body.insertRow();
+      tr.insertCell().textContent = e.seq + 1;
+      tr.insertCell().textContent = e.category;
+      tr.insertCell().textContent = e.period;
+      const verdict = tr.insertCell();
+      const pill = document.createElement('span');
+      pill.className = 'pill ' + (e.compliant ? 'pass' : 'fail');
+      pill.textContent = e.compliant ? 'Under 5%' : '5% or more';
+      verdict.appendChild(pill);
+      tr.insertCell().textContent = e.headcount;
+      const c = tr.insertCell();
+      const code = document.createElement('code');
+      code.title = e.commitment;
+      code.textContent = e.commitment.slice(0, 10) + '…';
+      c.appendChild(code);
+    }
+    host.appendChild(table);
+  }
+
+  async function api(path, body) {
+    const res = await fetch(path, body === undefined ? undefined : {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'request failed');
+    return data;
+  }
+
+  document.getElementById('add').addEventListener('click', () => addPerson());
+  document.getElementById('example').addEventListener('click', loadExample);
+
+  document.getElementById('submit').addEventListener('click', async (ev) => {
+    const btn = ev.currentTarget;
+    btn.disabled = true;
+    try {
+      const data = await api('/api/audits', {
+        category: document.getElementById('category').value,
+        period: Number(document.getElementById('period').value),
+        workers: readWorkers(),
+      });
+      renderLedger(data.ledger);
+      const e = data.entry;
+      showMsg('ok', `Recorded: ${e.category}, ${e.period}. ${e.compliant ? 'Gap is under 5%.' : 'Gap is 5% or more.'} ${e.headcount} people. No salaries left this machine.`);
+    } catch (err) {
+      showMsg('error', err.message);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  document.getElementById('reset').addEventListener('click', async () => {
+    renderLedger(await api('/api/reset', {}));
+    msgEl.className = 'msg';
+  });
+
+  loadExample();
+  api('/api/ledger').then(renderLedger);
+</script>
+</body>
+</html>
