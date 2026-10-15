@@ -1,0 +1,39 @@
+name: ci
+
+on:
+  push:
+    branches: [main, development]
+  pull_request:
+    branches: [main, development]
+
+env:
+  COMPACT_VERSION: 0.31.1
+
+jobs:
+  contract:
+    name: compile, typecheck, test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install Compact
+        run: |
+          curl --proto '=https' --tlsv1.2 -LsSf https://github.com/midnightntwrk/compact/releases/latest/download/compact-installer.sh | sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Pin the compiler
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          compact update "$COMPACT_VERSION"
+          compact compile --version
+
+      - run: npm ci
+      - run: npm run compile
+      - run: npm run typecheck
+      - run: npm test
+
