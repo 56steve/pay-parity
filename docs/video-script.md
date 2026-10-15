@@ -44,9 +44,9 @@ Show slide 4.
 
 Show slide 6, then slide 8.
 
-> The contract has 31 unit tests and 8 end-to-end tests that run on a local Midnight network, including one that reads the public state back and scans it for every salary. Next is deploying to Preprod, and larger payrolls.
+> The contract has 31 unit tests and 8 end-to-end tests, and it is live on Midnight Preprod, though the two audits there use made-up pay data. Next is a pilot with a real payroll export, and larger categories.
 
 ## Notes
 
-- Don't claim it's on a public network. It has run on a local Midnight network, not Preprod.
+- Say that the Preprod audits use made-up pay data. Nothing here attests a real payroll yet.
 - If something fails on camera, say so and redo the take; the contract's error messages are part of the demo.
