@@ -140,7 +140,7 @@ CI compiles, typechecks and runs the unit tests on every push. The end-to-end wo
 
 ![The same UI against a local Midnight network, with a proven transaction recorded for each audit](docs/demo-chain.jpg)
 
-The slide deck is in [`docs/pay-parity-deck.pptx`](docs/pay-parity-deck.pptx), and the notes for the submission form are in [`docs/submission.md`](docs/submission.md).
+The slide deck is in [`docs/pay-parity-deck.pptx`](docs/pay-parity-deck.pptx).
 
 ## Limitations
 
