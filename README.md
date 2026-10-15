@@ -4,6 +4,8 @@ Prove that the gender pay gap in a job category is under 5% without publishing a
 
 Built for the Midnight Buildathon (Wave 2). The contract is written in Compact and the public ledger only ever sees a verdict, a headcount and a commitment.
 
+![The demo: an employer submits audits and the public ledger records only verdicts](docs/demo.jpg)
+
 ## The problem
 
 The EU Pay Transparency Directive (2023/970) makes employers report gender pay gaps, and an unexplained gap of 5% or more in a job category triggers a joint pay assessment with worker representatives. Member states were due to transpose it by 7 June 2026, and employers are now working out how to evidence compliance.
@@ -73,7 +75,7 @@ compact update 0.31.1
 
 npm ci
 npm run compile     # compiles the contract and generates the proving keys
-npm test            # 29 tests
+npm test            # 31 tests
 npm run demo        # http://127.0.0.1:3000
 ```
 
@@ -85,9 +87,12 @@ npm run demo        # http://127.0.0.1:3000
    - rejection of groups smaller than two, and of anyone but the employer
    - a check that no salary appears in the public state, either as a decimal or as the little-endian bytes the ledger stores
    - the commitment is binding (a changed payroll changes it) and hiding (a new salt changes it)
+   - the audit log keeps submission order, which the ledger map does not do by itself
 3. `npm run demo`, then use "Load example" and "Submit audit". Change the female salaries to something lower and submit again. Then remove two women so the group drops below two and submit: the contract's own message comes back and nothing is recorded.
 
 CI compiles, typechecks and runs the tests on every push. A fresh clone passes with `npm ci` followed by the commands above.
+
+The slide deck is in [`docs/pay-parity-deck.pptx`](docs/pay-parity-deck.pptx), and the notes for the submission form are in [`docs/submission.md`](docs/submission.md).
 
 ## Limitations
 
