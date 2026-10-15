@@ -1,0 +1,21 @@
+{
+  "name": "pay-parity",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Prove EU pay-gap compliance per job category without revealing any salary, built on Midnight.",
+  "license": "Apache-2.0",
+  "scripts": {
+    "compile": "compact compile contracts/pay-parity.compact contracts/managed/pay-parity",
+    "build": "npm run compile && tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@midnight-ntwrk/compact-runtime": "0.16.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}
