@@ -44,9 +44,9 @@ Show slide 4.
 
 Show slide 6, then slide 8.
 
-> The contract has 31 tests, including one that scans the public state for every salary. Today the demo runs the compiled contract in-process. Next is deploying to Preprod with real proofs, and larger payrolls.
+> The contract has 31 unit tests and 8 end-to-end tests that run on a local Midnight network, including one that reads the public state back and scans it for every salary. Next is deploying to Preprod, and larger payrolls.
 
 ## Notes
 
-- Don't claim it's deployed on a network. It isn't yet.
+- Don't claim it's on a public network. It has run on a local Midnight network, not Preprod.
 - If something fails on camera, say so and redo the take; the contract's error messages are part of the demo.

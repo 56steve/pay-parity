@@ -21,20 +21,21 @@ Midnight features used: private state through witnesses, explicit `disclose()` a
 This is a new project started in Wave 2.
 
 - Compact contract (`contracts/pay-parity.compact`) compiling on the 0.31.1 toolchain pinned by the Preprod support matrix
-- 31 tests covering verdicts, the exact 5% boundary, rejections, the append-only log and its ordering, commitment properties, and a check that no salary appears in public state
-- Employer-side demo backend and web UI that run the compiled contract in-process
-- CI that compiles, typechecks and tests on every push
-- README, slide deck and demo script
+- 31 unit tests covering verdicts, the exact 5% boundary, rejections, the append-only log and its ordering, commitment properties, and a check that no salary appears in public state
+- 8 end-to-end tests against a local Midnight network (node, indexer and proof server in Docker): a real deploy, audits submitted with real zero-knowledge proofs, rejections before any proof is made, the public state read back from the indexer and scanned for salaries, and the on-chain commitment reproduced from the payroll and salt
+- Employer-side demo backend and web UI, with two modes: in-process, or every audit sent as a proven transaction to the local network
+- CI that compiles, typechecks and tests on every push, plus an on-demand end-to-end workflow
+- README, slide deck, demo script and narrated demo video
 
 ## Known limits
 
-- The demo runs the contract in-process: no network and no zero-knowledge proofs yet.
+- Tested on a local Midnight network, not yet deployed to Preprod (that needs a funded wallet).
 - The contract proves that the supplied data meets the rule; it can't know the data is the true payroll.
 - One audit covers up to eight people.
 
 ## Next (Wave 3)
 
-Deploy to Preprod with real proofs, combine several batches into one verdict, check signed payroll exports in the circuit, and add an employee self-check with a Merkle inclusion proof.
+Deploy to Preprod, combine several batches into one verdict, check signed payroll exports in the circuit, and add an employee self-check with a Merkle inclusion proof.
 
 ## Checklist
 
