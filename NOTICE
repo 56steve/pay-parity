@@ -9,3 +9,4 @@ copied or adapted from https://github.com/midnightntwrk/midnight-examples
   src/network/wallet.ts      wallet provider (adapted from examples/private-bid)
   src/network/wait-for-dust.ts
   compose.yml                local node, indexer and proof server (from examples/private-bid)
+  preseed/preprod/           public Preprod chain state used to fast-sync a new wallet

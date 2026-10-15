@@ -21,7 +21,11 @@
     "env:down": "docker compose down",
     "wait:dust": "vite-node src/network/wait-for-dust.ts",
     "demo": "vite-node demo/server.ts",
-    "demo:chain": "vite-node demo/chain.ts"
+    "demo:chain": "vite-node demo/chain.ts",
+    "proof:preprod:up": "docker compose -f compose.preprod.yml up -d --wait",
+    "proof:preprod:down": "docker compose -f compose.preprod.yml down",
+    "preprod:wallet": "vite-node scripts/preprod-wallet.ts",
+    "preprod:deploy": "vite-node scripts/preprod-deploy.ts"
   },
   "dependencies": {
     "@midnight-ntwrk/compact-runtime": "0.16.0",

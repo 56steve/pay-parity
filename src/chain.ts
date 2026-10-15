@@ -29,7 +29,7 @@ export function newEmployerSecret(): Uint8Array {
 export async function deployAuditContract(
   providers: PayParityProviders,
   secret: Uint8Array,
-): Promise<{ address: ContractAddress; deployed: DeployedContract<Contract> }> {
+): Promise<{ address: ContractAddress; deployed: DeployedContract<Contract>; txId: string; blockHeight: number }> {
   const initialPrivateState: EmployerPrivateState = {
     secret,
     batch: toBatch([]),
@@ -41,7 +41,8 @@ export async function deployAuditContract(
     initialPrivateState,
     args: [pureCircuits.authorityOf(secret)],
   });
-  return { address: deployed.deployTxData.public.contractAddress, deployed };
+  const { contractAddress, txId, blockHeight } = deployed.deployTxData.public;
+  return { address: contractAddress, deployed, txId, blockHeight };
 }
 
 export type SubmittedAudit = {

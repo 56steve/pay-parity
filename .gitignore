@@ -11,3 +11,4 @@ dist/
 # local runtime state
 .midnight-state/
 midnight-level-db/
+!.env.*.example
