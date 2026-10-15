@@ -1,0 +1,52 @@
+name: e2e
+
+# Real deploys and real proofs against a local Midnight network. Slow, so it
+# runs on demand: Actions tab, "e2e", "Run workflow".
+on:
+  workflow_dispatch:
+
+env:
+  COMPACT_VERSION: 0.31.1
+
+jobs:
+  e2e:
+    name: end to end on a local network
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install Compact
+        run: |
+          curl --proto '=https' --tlsv1.2 -LsSf https://github.com/midnightntwrk/compact/releases/latest/download/compact-installer.sh | sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Pin the compiler
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          compact update "$COMPACT_VERSION"
+
+      - run: npm ci
+      - run: npm run compile
+
+      - name: Start the local Midnight network
+        run: npm run env:up
+
+      - name: Wait for the dev wallet to hold DUST
+        run: npm run wait:dust
+
+      - name: Run end to end tests
+        run: npm run test:e2e
+
+      - name: Network logs on failure
+        if: failure()
+        run: docker compose logs --tail=200
+
+      - name: Stop the network
+        if: always()
+        run: npm run env:down
