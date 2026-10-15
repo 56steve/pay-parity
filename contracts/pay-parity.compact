@@ -1,0 +1,78 @@
+pragma language_version >= 0.20;
+
+import CompactStandardLibrary;
+
+// The EU Pay Transparency Directive treats an unexplained gap of 5% or more
+// between average female and male pay in a job category as a trigger for a
+// joint pay assessment. This contract lets an employer prove, per category,
+// that the gap stays below that line without putting a single salary on-chain.
+
+export enum Gender { female, male }
+
+export struct PayRecord {
+  salary: Uint<32>;
+  gender: Gender;
+  active: Boolean;
+}
+
+export struct AuditResult {
+  category: Bytes<32>;
+  period: Uint<32>;
+  compliant: Boolean;
+  headcount: Uint<16>;
+  commitment: Bytes<32>;
+}
+
+// private inputs, supplied by the employer's own machine
+witness employerSecret(): Bytes<32>;
+witness payBatch(): Vector<8, PayRecord>;
+witness batchSalt(): Bytes<32>;
+
+export sealed ledger employer: Bytes<32>;
+export ledger submissions: Counter;
+export ledger audits: Map<Uint<64>, AuditResult>;
+
+constructor(employerAuthority: Bytes<32>) {
+  employer = disclose(employerAuthority);
+}
+
+export pure circuit authorityOf(secret: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<2, Bytes<32>>>([pad(32, "pay-parity:employer"), secret]);
+}
+
+export circuit submitAudit(category: Bytes<32>, period: Uint<32>): [] {
+  assert(authorityOf(employerSecret()) == employer, "only the employer can submit audits");
+
+  const batch = payBatch();
+
+  const femalePay = map((r: PayRecord): Uint<32> => (r.active && r.gender == Gender.female) ? r.salary : 0 as Uint<32>, batch);
+  const malePay = map((r: PayRecord): Uint<32> => (r.active && r.gender == Gender.male) ? r.salary : 0 as Uint<32>, batch);
+  const femaleSeats = map((r: PayRecord): Uint<16> => (r.active && r.gender == Gender.female) ? 1 as Uint<16> : 0 as Uint<16>, batch);
+  const maleSeats = map((r: PayRecord): Uint<16> => (r.active && r.gender == Gender.male) ? 1 as Uint<16> : 0 as Uint<16>, batch);
+
+  const sumFemale = fold((acc: Uint<64>, x: Uint<32>): Uint<64> => (acc + x) as Uint<64>, 0 as Uint<64>, femalePay);
+  const sumMale = fold((acc: Uint<64>, x: Uint<32>): Uint<64> => (acc + x) as Uint<64>, 0 as Uint<64>, malePay);
+  const countFemale = fold((acc: Uint<16>, x: Uint<16>): Uint<16> => (acc + x) as Uint<16>, 0 as Uint<16>, femaleSeats);
+  const countMale = fold((acc: Uint<16>, x: Uint<16>): Uint<16> => (acc + x) as Uint<16>, 0 as Uint<16>, maleSeats);
+
+  // a group of one would let the verdict leak that person's pay
+  assert(countFemale >= 2 && countMale >= 2, "each group needs at least two people");
+
+  // gap = (avgMale - avgFemale) / avgMale, compliant when gap < 5%
+  // avgFemale > 0.95 * avgMale, cross-multiplied so no division is needed
+  const lhs = (sumFemale * countMale * 100) as Uint<64>;
+  const rhs = (sumMale * countFemale * 95) as Uint<64>;
+  const compliant = lhs > rhs;
+
+  const result = AuditResult {
+    category: category,
+    period: period,
+    compliant: disclose(compliant),
+    headcount: disclose((countFemale + countMale) as Uint<16>),
+    commitment: persistentCommit<Vector<8, PayRecord>>(batch, batchSalt())
+  };
+
+  // every attempt is appended, so a failed audit can't be quietly retried away
+  audits.insert(disclose(submissions.read()), disclose(result));
+  submissions.increment(1);
+}
