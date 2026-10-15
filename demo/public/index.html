@@ -73,6 +73,15 @@
     padding: 7px 9px;
     width: 100%;
   }
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 34px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%239a9a93' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 12px 12px;
+  }
   input:focus-visible, select:focus-visible, button:focus-visible {
     outline: 2px solid var(--focus);
     outline-offset: 1px;
@@ -175,10 +184,11 @@
     <p class="sub">What a regulator or employee can read. Every attempt is appended, including failures.</p>
     <div id="ledger"></div>
     <div class="actions"><button type="button" id="reset">Clear ledger</button></div>
+    <p class="sub" id="contract" hidden></p>
   </section>
 </main>
 
-<footer>
+<footer id="mode-note">
   Runs the compiled Compact contract in-process. No network is involved and no zero-knowledge proofs are generated in this mode.
 </footer>
 
@@ -300,9 +310,16 @@
   document.getElementById('add').addEventListener('click', () => addPerson());
   document.getElementById('example').addEventListener('click', loadExample);
 
+  let onChain = false;
+
   document.getElementById('submit').addEventListener('click', async (ev) => {
     const btn = ev.currentTarget;
     btn.disabled = true;
+    const label = btn.textContent;
+    if (onChain) {
+      btn.textContent = 'Generating proof…';
+      showMsg('ok', 'Generating a zero-knowledge proof and submitting the transaction. This takes about a minute.');
+    }
     try {
       const data = await api('/api/audits', {
         category: document.getElementById('category').value,
@@ -311,11 +328,13 @@
       });
       renderLedger(data.ledger);
       const e = data.entry;
-      showMsg('ok', `Recorded: ${e.category}, ${e.period}. ${e.compliant ? 'Gap is under 5%.' : 'Gap is 5% or more.'} ${e.headcount} people. No salaries left this machine.`);
+      const tx = data.txId ? ` Transaction ${data.txId.slice(0, 12)}…` : '';
+      showMsg('ok', `Recorded: ${e.category}, ${e.period}. ${e.compliant ? 'Gap is under 5%.' : 'Gap is 5% or more.'} ${e.headcount} people. No salaries left this machine.${tx}`);
     } catch (err) {
       showMsg('error', err.message);
     } finally {
       btn.disabled = false;
+      btn.textContent = label;
     }
   });
 
@@ -326,6 +345,18 @@
 
   loadExample();
   api('/api/ledger').then(renderLedger);
+  api('/api/mode').then((m) => {
+    onChain = m.mode === 'chain';
+    if (!m.canReset) document.getElementById('reset').hidden = true;
+    if (onChain) {
+      document.getElementById('mode-note').textContent =
+        'Connected to a local Midnight network. Each audit is a real transaction with a real zero-knowledge proof.';
+      const c = document.getElementById('contract');
+      c.hidden = false;
+      c.textContent = 'Contract ' + m.contract.slice(0, 16) + '…';
+      c.title = m.contract;
+    }
+  });
 </script>
 </body>
 </html>

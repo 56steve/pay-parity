@@ -20,7 +20,8 @@
     "env:up": "docker compose up -d --wait",
     "env:down": "docker compose down",
     "wait:dust": "vite-node src/network/wait-for-dust.ts",
-    "demo": "vite-node demo/server.ts"
+    "demo": "vite-node demo/server.ts",
+    "demo:chain": "vite-node demo/chain.ts"
   },
   "dependencies": {
     "@midnight-ntwrk/compact-runtime": "0.16.0",

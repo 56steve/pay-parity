@@ -80,8 +80,15 @@ export async function readLedger(providers: PayParityProviders, address: Contrac
   return ledger(state.data);
 }
 
-export async function readAuditLog(providers: PayParityProviders, address: ContractAddress): Promise<AuditResult[]> {
+export async function readNumberedLog(
+  providers: PayParityProviders,
+  address: ContractAddress,
+): Promise<Array<{ seq: number; entry: AuditResult }>> {
   const l = await readLedger(providers, address);
   // the ledger map doesn't iterate in insertion order, so order by sequence number
-  return [...l.audits].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)).map(([, entry]) => entry);
+  return [...l.audits].map(([seq, entry]) => ({ seq: Number(seq), entry })).sort((a, b) => a.seq - b.seq);
+}
+
+export async function readAuditLog(providers: PayParityProviders, address: ContractAddress): Promise<AuditResult[]> {
+  return (await readNumberedLog(providers, address)).map(({ entry }) => entry);
 }
