@@ -1,6 +1,6 @@
 # Demo video script
 
-Target length: 2 minutes 30 seconds. Screen recording of the demo plus the deck, with voiceover. Read it in your own words; the points matter more than the wording.
+Target length: 2 minutes 30 seconds. The recorded video in the submission is silent, with this text as on-screen captions. If you record your own voiceover instead, read it in your own words; the points matter more than the wording.
 
 Before recording: run `npm run demo`, open http://127.0.0.1:3000, and click "Clear ledger" so it starts empty.
 

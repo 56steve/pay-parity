@@ -25,7 +25,7 @@ This is a new project started in Wave 2.
 - 8 end-to-end tests against a local Midnight network (node, indexer and proof server in Docker): a real deploy, audits submitted with real zero-knowledge proofs, rejections before any proof is made, the public state read back from the indexer and scanned for salaries, and the on-chain commitment reproduced from the payroll and salt
 - Employer-side demo backend and web UI, with two modes: in-process, or every audit sent as a proven transaction to the local network
 - CI that compiles, typechecks and tests on every push, plus an on-demand end-to-end workflow
-- README, slide deck, demo script and narrated demo video
+- README, slide deck and a captioned demo video (silent, with the script as on-screen captions)
 
 ## Known limits
 
