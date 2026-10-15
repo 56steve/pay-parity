@@ -8,5 +8,6 @@ dist/
 # compact compiler output
 **/managed/
 
-# local midnight state
+# local runtime state
 .midnight-state/
+midnight-level-db/

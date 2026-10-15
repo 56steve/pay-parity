@@ -5,17 +5,22 @@
   "type": "module",
   "description": "Prove EU pay-gap compliance per job category without revealing any salary, built on Midnight.",
   "license": "Apache-2.0",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
     "compile": "compact compile contracts/pay-parity.compact contracts/managed/pay-parity",
-    "build": "npm run compile && tsc -p tsconfig.json",
-    "test": "vitest run"
+    "typecheck": "tsc --noEmit -p .",
+    "test": "vitest run",
+    "demo": "vite-node demo/server.ts"
   },
   "dependencies": {
     "@midnight-ntwrk/compact-runtime": "0.16.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
-    "typescript": "^5.6.0",
-    "vitest": "^2.1.0"
+    "typescript": "^5.7.0",
+    "vite-node": "^6.0.0",
+    "vitest": "^4.1.0"
   }
 }
