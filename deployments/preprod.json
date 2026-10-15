@@ -1,0 +1,32 @@
+{
+  "network": "preprod",
+  "contractAddress": "f4e684d9e05b892e8427cba2296e08a96c0086cd12fe5c618c3c53064add8d05",
+  "employerAuthority": "6db178fde52ad12bda01a4c36c332f7cd6c8f32838e92cd943cc5210be016e34",
+  "deploy": {
+    "txId": "0058943601b0ecd97aeb40f7cfb8f24cfe539e20e9e01014e3b62eb554ff2da7b5",
+    "blockHeight": 2997492
+  },
+  "audits": [
+    {
+      "seq": 0,
+      "category": "Software engineers",
+      "period": 2026,
+      "verdict": "under 5%",
+      "headcount": 6,
+      "commitment": "48e906d9ca19310450dcaff44b867784bed7d00daaeac4eef1e39c8e18ccab45",
+      "txId": "00df701d5ea8598a084b67ee7e03060a2f2b754d59d585645924418f8fa46ad2bd",
+      "blockHeight": 2997498
+    },
+    {
+      "seq": 1,
+      "category": "Product designers",
+      "period": 2026,
+      "verdict": "5% or more",
+      "headcount": 6,
+      "commitment": "8f3f778d1352b42fcb2fad1e086d33333cf53a22f019372440164e49c1638dc8",
+      "txId": "002fb9834094c7af3d1f68509788333f8c9d3b85b0ac0dbab3825e465f5e18cd30",
+      "blockHeight": 2997505
+    }
+  ],
+  "recordedAt": "2026-10-15T22:21:26.921Z"
+}

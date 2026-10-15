@@ -25,7 +25,8 @@
     "proof:preprod:up": "docker compose -f compose.preprod.yml up -d --wait",
     "proof:preprod:down": "docker compose -f compose.preprod.yml down",
     "preprod:wallet": "vite-node scripts/preprod-wallet.ts",
-    "preprod:deploy": "vite-node scripts/preprod-deploy.ts"
+    "preprod:deploy": "vite-node scripts/preprod-deploy.ts",
+    "preprod:verify": "vite-node scripts/preprod-verify.ts"
   },
   "dependencies": {
     "@midnight-ntwrk/compact-runtime": "0.16.0",
