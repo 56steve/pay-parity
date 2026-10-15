@@ -53,6 +53,21 @@ The commitment is `persistentCommit(batch, salt)`. It binds the employer to the 
 
 The contract is in [`contracts/pay-parity.compact`](contracts/pay-parity.compact).
 
+## Live on Preprod
+
+The contract is deployed on the Midnight Preprod network, with two audits recorded by real transactions that each carry a zero-knowledge proof. All values are in [`deployments/preprod.json`](deployments/preprod.json).
+
+| What | Value |
+| --- | --- |
+| Contract address | `f4e684d9e05b892e8427cba2296e08a96c0086cd12fe5c618c3c53064add8d05` |
+| Deploy transaction | `0058943601b0ecd97aeb40f7cfb8f24cfe539e20e9e01014e3b62eb554ff2da7b5`, block 2997492 |
+| Audit 0: Software engineers 2026, under 5% | `00df701d5ea8598a084b67ee7e03060a2f2b754d59d585645924418f8fa46ad2bd`, block 2997498 |
+| Audit 1: Product designers 2026, 5% or more | `002fb9834094c7af3d1f68509788333f8c9d3b85b0ac0dbab3825e465f5e18cd30`, block 2997505 |
+
+To check it yourself, paste the contract address into the search box at [preprod.midnightexplorer.com](https://preprod.midnightexplorer.com/). It opens the contract page, which shows the contract as deployed with the `submitAudit` entry point. The explorer shows its own transaction hashes, which are in a different format from the transaction IDs above, so match them by block number: 2997492, 2997498 and 2997505.
+
+To read the audit log back and confirm that no salary is in the public state, run `npm run preprod:verify`. It reads the contract through the public indexer with no wallet and no private keys, but Preprod's indexer is served by Blockfrost, so it needs a free project id in `.env.preprod` (see `.env.preprod.example`).
+
 ## Repository layout
 
 ```
@@ -62,7 +77,9 @@ src/witnesses.ts               private state and witness implementations
 src/payroll.ts                 batch padding and input validation
 src/simulator.ts               runs the compiled contract in-process
 src/chain.ts                   deploy the contract and submit audits on a network
-src/network/                   wallet, providers and session for a Midnight network
+src/network/                   wallet, providers and session for local, Preprod or any network
+scripts/                       Preprod wallet, deploy and verify scripts
+deployments/preprod.json       the public evidence from the Preprod run
 demo/server.ts                 employer-side backend for the demo (two modes)
 demo/public/index.html         the web UI
 test/                          contract tests and API tests, no network needed
@@ -95,6 +112,16 @@ npm run demo:chain  # the same UI, every audit is a proven transaction
 npm run env:down
 ```
 
+To deploy to Preprod yourself you need a free Blockfrost project id and tNIGHT from the Preprod faucet:
+
+```bash
+cp .env.preprod.example .env.preprod   # then add your BLOCKFROST_PROJECT_ID
+npm run preprod:wallet                 # creates a wallet and prints the address to fund
+npm run proof:preprod:up               # proof server 8.1.3 in Docker
+npm run preprod:deploy                 # waits for funds and DUST, deploys, submits two audits
+npm run preprod:verify                 # reads it back from the public indexer
+```
+
 ## How to evaluate it
 
 1. `npm run compile` should finish without errors. This is the contract gate.
@@ -107,6 +134,8 @@ npm run env:down
 3. `npm run demo`, then use "Load example" and "Submit audit". Change the female salaries to something lower and submit again. Then remove two women so the group drops below two and submit: the contract's own message comes back and nothing is recorded.
 4. With Docker, `npm run test:e2e` runs the same checks on a real network. It deploys the contract, submits audits that each carry a zero-knowledge proof, rejects bad ones before any proof is made, reads the public state back from the indexer and scans it for every salary, and checks that replaying the payroll with the same salt reproduces the on-chain commitment.
 
+5. `npm run preprod:verify` (or the explorer link above) checks the live Preprod deployment.
+
 CI compiles, typechecks and runs the unit tests on every push. The end-to-end workflow needs Docker and runs on demand from the Actions tab. A fresh clone passes with `npm ci` followed by the commands above.
 
 ![The same UI against a local Midnight network, with a proven transaction recorded for each audit](docs/demo-chain.jpg)
@@ -117,7 +146,7 @@ The slide deck is in [`docs/pay-parity-deck.pptx`](docs/pay-parity-deck.pptx), a
 
 These are real, and worth knowing before relying on this.
 
-- **Tested on a local network, not a public one.** The contract has been deployed and called with real proofs on a local Midnight network, using the images from Midnight's own examples (node 1.0.0, indexer 4.3.3, proof server 8.1.0). Those are close to, but not identical to, the versions on the Preprod support matrix. It hasn't been deployed to Preprod or Preview yet, which needs a funded wallet.
+- **One employer, one deployment, a mocked payroll.** Preprod is a test network, and the two audits on it use made-up pay data. The end-to-end suite runs on a local network with images from Midnight's own examples, which are close to but not identical to the versions on the Preprod support matrix.
 - **The input is trusted.** The contract proves that the data the employer supplied meets the rule. It can't know the data is the true payroll. The commitment makes later disputes checkable, but nothing here attests the payroll at source.
 - **Binary gender.** The directive's formula compares female and male pay, and this follows it.
 - **Eight people per audit.** Compact loops are bounded, so each proof covers a fixed batch. Larger categories need several batches, which is not built yet.
@@ -126,7 +155,7 @@ These are real, and worth knowing before relying on this.
 
 ## Roadmap
 
-- Deploy to Preprod with a funded wallet.
+- A pilot with a real employer's payroll export, instead of made-up data.
 - Larger categories: several batches combined into one verdict.
 - Payroll attestation: a signed export from an HR or payroll system, checked in the circuit.
 - Employee self-check: prove a worker's own record is part of an audited batch, using a Merkle tree of record commitments.
