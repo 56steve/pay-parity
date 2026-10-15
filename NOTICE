@@ -1,0 +1,11 @@
+pay-parity
+Copyright 2026 56steve
+
+This product includes software developed by the Midnight Foundation,
+copied or adapted from https://github.com/midnightntwrk/midnight-examples
+(Apache License 2.0), with their license headers kept in the files:
+
+  packages/fast-sync/        wallet harness for the local network
+  src/network/wallet.ts      wallet provider (adapted from examples/private-bid)
+  src/network/wait-for-dust.ts
+  compose.yml                local node, indexer and proof server (from examples/private-bid)
